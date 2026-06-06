@@ -138,5 +138,7 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, $loginBody);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $loginHeaders);
 $loginResponse = curl_exec($ch);
 $loginData = json_decode($loginResponse, true);
-file_put_contents("data/login.json",$loginResponse);
-echo $loginData['message'];
+if (isset($loginData['data']['subscriberId']) && isset($loginData['data']['userAuthenticateToken'])) {
+    file_put_contents("data/login.json",$loginResponse);
+}
+echo $loginData['message'] ?? 'Login failed';
