@@ -1,6 +1,15 @@
 <?php
 
 include 'app/functions.php';
+
+$clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '59.178.74.184';
+if (strpos($clientIp, ',') !== false) {
+    $clientIp = trim(explode(',', $clientIp)[0]);
+}
+if (!filter_var($clientIp, FILTER_VALIDATE_IP)) {
+    $clientIp = '59.178.74.184';
+}
+
 if (!$id) {http_response_code(400);echo 'Missing content ID.';exit;}
 if (!file_exists($loginFilePath)) {http_response_code(401);echo 'Login required.';exit;}
 $loginData = json_decode(file_get_contents($loginFilePath), true);
@@ -39,7 +48,7 @@ if (!$useCache) {
             'header' => "User-Agent: $ua\r\n" .
                         "Accept: */*\r\n" .
                         "Connection: close\r\n" .
-                        "X-Forwarded-For: 59.178.74.184\r\n" .
+                        "X-Forwarded-For: $clientIp\r\n" .
                         "Origin: https://watch.tataplay.com\r\n" .
                         "Referer: https://watch.tataplay.com/\r\n",
             'follow_location' => 0,
@@ -81,7 +90,7 @@ $mpdContext = stream_context_create([
         'header' => "User-Agent: $ua\r\n" .
                     "Referer: https://watch.tataplay.com/\r\n" .
                     "Origin: https://watch.tataplay.com\r\n" .
-                    "X-Forwarded-For: 59.178.74.184\r\n",
+                    "X-Forwarded-For: $clientIp\r\n",
         'ignore_errors' => true
     ]
 ]);
