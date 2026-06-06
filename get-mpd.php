@@ -33,7 +33,19 @@ if (!$useCache) {
     $decryptedUrl = str_replace('manifest', 'Manifest', $decryptedUrl);
 
     if (strpos($decryptedUrl, 'bpaicatchupta') === false) {header("Location: $decryptedUrl"); exit;}
-    $ctx = stream_context_create(['http' => ['method' => 'GET', 'header' => "User-Agent: $ua\r\nAccept: */*\r\nConnection: close\r\n", 'follow_location' => 0, 'ignore_errors' => true]]);
+    $ctx = stream_context_create([
+        'http' => [
+            'method' => 'GET',
+            'header' => "User-Agent: $ua\r\n" .
+                        "Accept: */*\r\n" .
+                        "Connection: close\r\n" .
+                        "X-Forwarded-For: 59.178.74.184\r\n" .
+                        "Origin: https://watch.tataplay.com\r\n" .
+                        "Referer: https://watch.tataplay.com/\r\n",
+            'follow_location' => 0,
+            'ignore_errors' => true
+        ]
+    ]);
     $respHeaders = @get_headers($decryptedUrl, 1, $ctx);
 
     if ($respHeaders && isset($respHeaders['Set-Cookie'])) {$cookies = $respHeaders['Set-Cookie'];
@@ -63,7 +75,16 @@ if (!$useCache) {
     file_put_contents($cachePath, json_encode($cacheData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 }
 
-$mpdContext = stream_context_create(['http' => ['method' => 'GET','header' => "User-Agent: $ua\r\nReferer: https://watch.tataplay.com/\r\nOrigin: https://watch.tataplay.com\r\n",'ignore_errors' => true]]);
+$mpdContext = stream_context_create([
+    'http' => [
+        'method' => 'GET',
+        'header' => "User-Agent: $ua\r\n" .
+                    "Referer: https://watch.tataplay.com/\r\n" .
+                    "Origin: https://watch.tataplay.com\r\n" .
+                    "X-Forwarded-For: 59.178.74.184\r\n",
+        'ignore_errors' => true
+    ]
+]);
 $mpdContent = @file_get_contents($mpdurl, false, $mpdContext);
 if ($mpdContent === false) {http_response_code(500);echo 'Failed to fetch MPD content.';exit;}
 $baseUrl = dirname($mpdurl);
