@@ -30,17 +30,20 @@ if (stripos($userAgent, 'tivimate') !== false) {
     $liveheaders = '|X-Forwarded-For=59.178.74.184&Origin=https://watch.tataplay.com&Referer=https://watch.tataplay.com/';
 }
 
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
-$host = $_SERVER['HTTP_HOST'];
-$port = $_SERVER['SERVER_PORT'];
+$protocol = 'http';
+if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || 
+    (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) {
+    $protocol = 'https';
+}
 
+$host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
 $host_with_port = $host;
-if (($protocol === 'http' && $port !== '80') || ($protocol === 'https' && $port !== '443')) {
-    $host_with_port = $_SERVER['SERVER_NAME'] . ':' . $port;
+if (!empty($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+    $host_with_port = $_SERVER['HTTP_X_FORWARDED_HOST'];
 }
 
 $request_uri = $_SERVER['REQUEST_URI'];
-$path = dirname($request_uri);
+$path = rtrim(dirname($request_uri), '/\\');
 $base_url = "{$protocol}://{$host_with_port}{$path}";
 
 $is_apache = isApacheCompatible();
