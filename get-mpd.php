@@ -6,7 +6,7 @@ $clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '59.1
 if (strpos($clientIp, ',') !== false) {
     $clientIp = trim(explode(',', $clientIp)[0]);
 }
-if (!filter_var($clientIp, FILTER_VALIDATE_IP)) {
+if (!filter_var($clientIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
     $clientIp = '59.178.74.184';
 }
 
